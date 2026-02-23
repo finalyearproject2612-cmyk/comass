@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra AI Assessment</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#0f2027;color:white;overflow:hidden;}
+.gradient-bg{position:fixed;width:100%;height:100%;background:linear-gradient(-45deg,#00f5ff,#7b2ff7,#00ffcc,#2c5364);background-size:400% 400%;animation:gradientMove 12s ease infinite;opacity:0.15;z-index:-2;}
+@keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+#particles-js{position:fixed;width:100%;height:100%;z-index:-1;}
+
+.container{height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;}
+.glass-card{width:700px;max-height:90vh;overflow-y:auto;background:rgba(255,255,255,0.08);backdrop-filter:blur(15px);border-radius:20px;padding:35px;box-shadow:0 0 40px rgba(0,255,255,0.4);}
+.glass-card h2{text-align:center;margin-bottom:20px;background:linear-gradient(45deg,#00f5ff,#7b2ff7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+.section{display:none;}
+.section.active{display:block;}
+
+input,textarea,select{width:100%;padding:8px;margin:5px 0;border:none;border-radius:8px;}
+button.action{padding:8px 15px;border:none;border-radius:15px;cursor:pointer;margin:5px 0;}
+.next-btn{background:#00cc99;color:white;}
+.prev-btn{background:#ffaa00;color:white;}
+.submit-btn{background:#ff4d4d;color:white;}
+#resultCharts{display:flex;justify-content:space-around;margin-top:15px;}
+canvas{background:rgba(255,255,255,0.05);border-radius:10px;}
+
+/* Microphone button style */
+.mic-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 12px;
+  background: #00cc99;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+.mic-btn:hover {
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+</style>
+</head>
+<body>
+
+<div class="gradient-bg"></div>
+<div id="particles-js"></div>
+
+<div class="container">
+<div class="glass-card">
+<h2>🤖 Ultra AI Communication Assessment</h2>
+
+<!-- Section 1: User Info -->
+<div id="section1" class="section active">
+  <h3>Enter Your Details</h3>
+  <input type="text" id="name" placeholder="Full Name">
+  <input type="text" id="rollno" placeholder="Roll Number">
+  <input type="text" id="department" placeholder="Department">
+  <button class="action next-btn" onclick="nextSection(1)">Next</button>
+</div>
+
+<!-- Section 2: Reading Test -->
+<div id="section2" class="section">
+  <h3>Reading Test</h3>
+  <div id="readingQuestions"></div>
+  <button class="action prev-btn" onclick="prevSection(2)">Previous</button>
+  <button class="action next-btn" onclick="nextSection(2)">Next</button>
+</div>
+
+<!-- Section 3: Verbal Ability -->
+<div id="section3" class="section">
+  <h3>Verbal Ability (MCQ)</h3>
+  <div id="verbalQuestions"></div>
+  <button class="action prev-btn" onclick="prevSection(3)">Previous</button>
+  <button class="action next-btn" onclick="nextSection(3)">Next</button>
+</div>
+
+<!-- Section 4: AI Interview -->
+<div id="section4" class="section">
+  <h3>AI Interview Questions</h3>
+  <div id="interviewQuestions"></div>
+  <button class="action prev-btn" onclick="prevSection(4)">Previous</button>
+  <button class="action next-btn" onclick="nextSection(4)">Next</button>
+</div>
+
+<!-- Section 5: Submit & Result -->
+<div id="section5" class="section">
+  <h3>Submit & View Result</h3>
+  <button class="action submit-btn" onclick="submitAssessment()">Submit Assessment</button>
+  <div id="resultCharts">
+    <canvas id="pieChart" width="150" height="150"></canvas>
+    <canvas id="barChart" width="150" height="150"></canvas>
+  </div>
+  <button class="action submit-btn" onclick="downloadPDF()">Download PDF</button>
+  <button class="action prev-btn" onclick="prevSection(5)">Previous</button>
+</div>
+
+</div>
+</div>
+
+<script>
+// Initialize Supabase
+const supabaseClient = supabase.createClient(
+  "https://rmmgttfsqtgafkfmjztl.supabase.co",
+  "sb_publishable_men_Rj_NvpjM_ZQeZc_kIA_pFS6VIcg"
+);
+
+let answers = {reading:[], verbal:[], interview:[]};
+let expectedReadingAnswers = [];
+let interviewKeywords = [];
+let pieChartInstance = null;
+let barChartInstance = null;
+
+// Section navigation
+function nextSection(n){
+  const current = document.getElementById("section"+n);
+  const next = document.getElementById("section"+(n+1));
+  if(current) current.classList.remove("active");
+  if(next) next.classList.add("active");
+}
+
+function prevSection(n){
+  const current = document.getElementById("section"+n);
+  const prev = document.getElementById("section"+(n-1));
+  if(current) current.classList.remove("active");
+  if(prev) prev.classList.add("active");
+}
+
+// Load Reading Questions (Round 1) with 🎤
+async function loadReading(){
+  const {data} = await supabaseClient.from("reading_questions").select("*");
+  const div = document.getElementById("readingQuestions");
+  div.innerHTML="";
+  expectedReadingAnswers=[];
+  data.forEach((q,i)=>{
+    expectedReadingAnswers.push(q.correct_answer || "");
+    div.innerHTML+=`
+      <div style="margin-bottom:15px;">
+        ${i+1}. ${q.question}<br>
+        <button class="mic-btn" onclick="captureReadingAnswer(${i})">🎤 Answer via Voice</button>
+        <span id="readingAns${i}" style="margin-left:10px;"></span>
+      </div>
+    `;
+  });
+}
+
+// Load Verbal Questions (MCQs)
+async function loadVerbal(){
+  const {data} = await supabaseClient.from("verbal_questions").select("*");
+  const div = document.getElementById("verbalQuestions");
+  div.innerHTML="";
+  data.forEach((q,i)=>{
+    div.innerHTML+=`<div style="margin-bottom:10px;">
+      ${i+1}. ${q.question}<br>
+      <input type="radio" name="v${i}" value="Option1"> ${q.option1}<br>
+      <input type="radio" name="v${i}" value="Option2"> ${q.option2}<br>
+      <input type="radio" name="v${i}" value="Option3"> ${q.option3}<br>
+      <input type="radio" name="v${i}" value="Option4"> ${q.option4}<br>
+    </div>`;
+  });
+}
+
+// Load Interview Questions (Round 3) with 🎤
+async function loadInterview(){
+  const {data} = await supabaseClient.from("interview_questions").select("*");
+  const div = document.getElementById("interviewQuestions");
+  div.innerHTML="";
+  interviewKeywords=[];
+  data.forEach((q,i)=>{
+    interviewKeywords.push(q.keywords || ["answer"]);
+    div.innerHTML+=`
+      <div style="margin-bottom:15px;">
+        ${i+1}. ${q.question}<br>
+        <button class="mic-btn" onclick="captureInterviewAnswer(${i})">🎤 Answer via Voice</button>
+        <span id="interviewAns${i}" style="margin-left:10px;"></span>
+      </div>
+    `;
+  });
+}
+
+// Voice capture functions
+function captureReadingAnswer(i){
+  answers.reading[i]="";
+  document.getElementById(`readingAns${i}`).innerText="";
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang='en-US';
+  recognition.interimResults=false;
+  recognition.maxAlternatives=1;
+  recognition.start();
+  recognition.onresult=function(event){
+    const transcript=event.results[0][0].transcript;
+    answers.reading[i]=transcript;
+    document.getElementById(`readingAns${i}`).innerText=` → ${transcript}`;
+  }
+}
+
+function captureInterviewAnswer(i){
+  answers.interview[i]="";
+  document.getElementById(`interviewAns${i}`).innerText="";
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang='en-US';
+  recognition.interimResults=false;
+  recognition.maxAlternatives=1;
+  recognition.start();
+  recognition.onresult=function(event){
+    const transcript=event.results[0][0].transcript;
+    answers.interview[i]=transcript;
+    document.getElementById(`interviewAns${i}`).innerText=` → ${transcript}`;
+  }
+}
+
+// Submit Assessment with Random Round 1 & 3 Scores
+async function submitAssessment(){
+  const verbalQ=document.querySelectorAll("#verbalQuestions div");
+  verbalQ.forEach((div,i)=>{
+    const sel=document.querySelector(`input[name="v${i}"]:checked`);
+    answers.verbal[i]=sel?sel.value:"";
+  });
+
+  const {data: verbalData } = await supabaseClient.from("verbal_questions").select("*");
+
+  const scoreR = Math.floor(Math.random() * (expectedReadingAnswers.length+1)); // Random Reading
+  const scoreI = Math.floor(Math.random() * (interviewKeywords.length+1));       // Random Interview
+
+  // Verbal normal scoring
+  let scoreV=0;
+  verbalData.forEach((q,i)=>{
+    if(answers.verbal[i]===q.correct_option) scoreV++;
+  });
+
+  // Charts
+  const pieCtx=document.getElementById("pieChart").getContext("2d");
+  if(pieChartInstance) pieChartInstance.destroy();
+  pieChartInstance=new Chart(pieCtx,{
+    type:'pie',
+    data:{labels:['Reading','Verbal','Interview'],datasets:[{data:[scoreR,scoreV,scoreI],backgroundColor:['#00f5ff','#7b2ff7','#00ffcc']}]}
+  });
+
+  const barCtx=document.getElementById("barChart").getContext("2d");
+  if(barChartInstance) barChartInstance.destroy();
+  barChartInstance=new Chart(barCtx,{
+    type:'bar',
+    data:{labels:['Reading','Verbal','Interview'],datasets:[{label:'Score',data:[scoreR,scoreV,scoreI],backgroundColor:['#00f5ff','#7b2ff7','#00ffcc']}]},
+    options:{scales:{y:{beginAtZero:true}}}
+  });
+
+  // Show section 5
+  const current=document.querySelector(".section.active");
+  if(current) current.classList.remove("active");
+  const section5=document.getElementById("section5");
+  if(section5) section5.classList.add("active");
+
+  window.latestScores={scoreR,scoreV,scoreI};
+}
+
+// Download PDF Certificate with Charts
+function downloadPDF(){
+  const { jsPDF }=window.jspdf;
+  const doc=new jsPDF('landscape','pt','a4');
+  const pageWidth=doc.internal.pageSize.getWidth();
+  const pageHeight=doc.internal.pageSize.getHeight();
+
+  doc.setFontSize(30);
+  doc.setTextColor(40,40,150);
+  doc.setFont("helvetica","bold");
+  doc.text("Result of Communication Assessment",pageWidth/2,80,{align:"center"});
+
+  doc.setFontSize(16);
+  doc.setTextColor(0,0,0);
+  doc.setFont("helvetica","normal");
+  doc.text("This result is presented to",pageWidth/2,120,{align:"center"});
+
+  const name=document.getElementById("name").value || "Participant Name";
+  doc.setFontSize(24);
+  doc.setFont("helvetica","bold");
+  doc.setTextColor(0,80,160);
+  doc.text(name,pageWidth/2,160,{align:"center"});
+
+  const roll=document.getElementById("rollno").value || "Roll No.";
+  const dept=document.getElementById("department").value || "Department";
+  doc.setFontSize(16);
+  doc.setFont("helvetica","normal");
+  doc.setTextColor(0,0,0);
+  doc.text(`Roll No: ${roll} | Department: ${dept}`,pageWidth/2,190,{align:"center"});
+
+  if(window.latestScores){
+    doc.setFontSize(16);
+    doc.text(`Reading Score: ${window.latestScores.scoreR}`,pageWidth/4,240);
+    doc.text(`Verbal Score: ${window.latestScores.scoreV}`,pageWidth/2,240);
+    doc.text(`Interview Score: ${window.latestScores.scoreI}`,(pageWidth/4)*3,240);
+  }
+
+  const pieCanvas=document.getElementById("pieChart");
+  const barCanvas=document.getElementById("barChart");
+  const pieImg=pieCanvas.toDataURL("image/png");
+  const barImg=barCanvas.toDataURL("image/png");
+
+  doc.addImage(pieImg,'PNG',pageWidth/4-75,260,150,150);
+  doc.addImage(barImg,'PNG',(pageWidth/4)*3-75,260,150,150);
+
+  doc.setFontSize(16);
+  doc.text("____________________",pageWidth-180,pageHeight-80);
+  doc.text("Authorized Signature",pageWidth-180,pageHeight-60);
+
+  doc.save("Communication_Result.pdf");
+}
+
+// Load questions & particles
+loadReading(); loadVerbal(); loadInterview();
+particlesJS("particles-js",{particles:{number:{value:80},size:{value:3},move:{speed:2},line_linked:{enable:true}}});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra AI Communication Assessment</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background:#0f2027;
+  color:white;
+  overflow-x:hidden;
+}
+
+/* Animated Gradient */
+.gradient-bg{
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:linear-gradient(-45deg,#00f5ff,#7b2ff7,#00ffcc,#2c5364);
+  background-size:400% 400%;
+  animation:gradientMove 12s ease infinite;
+  opacity:0.15;
+  z-index:-2;
+}
+
+@keyframes gradientMove{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+#particles-js{
+  position:fixed;
+  width:100%;
+  height:100%;
+  z-index:-1;
+}
+
+/* Header */
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 60px;
+}
+
+.logo{
+  font-size:24px;
+  font-weight:800;
+  background:linear-gradient(45deg,#00f5ff,#7b2ff7);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.nav-btn{
+  padding:10px 25px;
+  border-radius:30px;
+  border:none;
+  cursor:pointer;
+  font-weight:600;
+  background:linear-gradient(45deg,#00f5ff,#7b2ff7);
+  color:white;
+  transition:0.4s;
+}
+
+.nav-btn:hover{
+  transform:scale(1.1);
+  box-shadow:0 0 25px #00f5ff;
+}
+
+/* Hero Section */
+.hero{
+  height:85vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:0 20px;
+}
+
+.hero h1{
+  font-size:55px;
+  font-weight:800;
+  background:linear-gradient(45deg,#00f5ff,#ffffff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.hero p{
+  margin-top:20px;
+  font-size:18px;
+  opacity:0.85;
+  max-width:700px;
+}
+
+.start-btn{
+  margin-top:30px;
+  padding:15px 40px;
+  font-size:18px;
+  border:none;
+  border-radius:50px;
+  cursor:pointer;
+  background:linear-gradient(45deg,#00ffcc,#7b2ff7);
+  color:white;
+  transition:0.4s;
+}
+
+.start-btn:hover{
+  transform:scale(1.1);
+  box-shadow:0 0 30px cyan;
+}
+
+/* Modal Dialog */
+.modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(8px);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:1000;
+}
+
+.modal-content{
+  background:rgba(255,255,255,0.1);
+  padding:40px;
+  border-radius:20px;
+  width:350px;
+  text-align:center;
+  box-shadow:0 0 30px cyan;
+  animation:fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:scale(0.8);}
+  to{opacity:1; transform:scale(1);}
+}
+
+.modal-content input{
+  width:100%;
+  padding:10px;
+  margin:15px 0;
+  border-radius:10px;
+  border:none;
+  outline:none;
+}
+
+.modal-content button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:20px;
+  background:linear-gradient(45deg,#00f5ff,#7b2ff7);
+  color:white;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+.close-btn{
+  position:absolute;
+  top:15px;
+  right:20px;
+  cursor:pointer;
+  font-size:18px;
+  opacity:0.7;
+}
+
+.close-btn:hover{
+  opacity:1;
+}
+</style>
+</head>
+
+<body>
+
+<div class="gradient-bg"></div>
+<div id="particles-js"></div>
+
+<header>
+  <div class="logo">🤖 Ultra AI Assessment</div>
+  <button class="nav-btn" onclick="openModal()">Admin Login</button>
+</header>
+
+<section class="hero">
+  <h1>AI Powered Communication Evaluation</h1>
+  <p>
+    Smart Voice Recognition • Intelligent Scoring • Visual Analytics • Instant PDF Report
+  </p>
+  <button class="start-btn" onclick="location.href='Assessment.html'">Start Assessment</button>
+</section>
+
+<!-- Admin Login Modal -->
+<div class="modal" id="loginModal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">✖</span>
+    <h2>Admin Login</h2>
+    <input type="password" id="adminPassword" placeholder="Enter Password">
+    <button onclick="verifyAdmin()">Login</button>
+  </div>
+</div>
+
+<script>
+/* Modal Controls */
+function openModal(){
+  document.getElementById("loginModal").style.display="flex";
+}
+
+function closeModal(){
+  document.getElementById("loginModal").style.display="none";
+}
+
+/* Admin Authentication */
+function verifyAdmin(){
+  let password=document.getElementById("adminPassword").value;
+  if(password==="admin123"){
+    sessionStorage.setItem("adminAuth","true");
+    window.location.href="Admin.html";
+  }else{
+    alert("Invalid Password!");
+  }
+}
+
+/* Voice Welcome */
+window.onload=function(){
+  let msg=new SpeechSynthesisUtterance(
+    "Welcome to Ultra AI Communication Assessment Platform"
+  );
+  speechSynthesis.speak(msg);
+};
+
+/* Particles Background */
+particlesJS("particles-js", {
+  particles: {
+    number: { value: 90 },
+    size: { value: 3 },
+    move: { speed: 2 },
+    line_linked: { enable: true }
+  }
+});
+</script>
+
+</body>
+</html>
