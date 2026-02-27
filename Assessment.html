@@ -3,269 +3,231 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultra AI Assessment</title>
+<title>Ultra AI Communication Assessment</title>
 
+<!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<!-- Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#0f2027;color:white;overflow:hidden;}
-.gradient-bg{position:fixed;width:100%;height:100%;background:linear-gradient(-45deg,#00f5ff,#7b2ff7,#00ffcc,#2c5364);background-size:400% 400%;animation:gradientMove 12s ease infinite;opacity:0.15;z-index:-2;}
-@keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-#particles-js{position:fixed;width:100%;height:100%;z-index:-1;}
+html, body { margin:0; padding:0; height:100%; font-family:'Poppins',sans-serif; background:#0f2027; color:white; overflow:hidden; }
+#particles-js { position:fixed; width:100%; height:100%; z-index:-1; }
+.container { width:100%; height:100%; display:flex; justify-content:center; align-items:center; }
+.glass-card { width:80%; max-width:900px; min-height:80vh; background:rgba(255,255,255,0.08); backdrop-filter:blur(20px); border-radius:20px; padding:40px; box-shadow:0 0 40px rgba(0,255,255,0.3); overflow:hidden; position:relative; opacity:0; transform:translateY(40px); transition: all 0.5s ease; }
+.glass-card.active { opacity:1; transform:translateY(0); }
+h2 { text-align:center; margin-bottom:25px; font-size:28px; background:linear-gradient(45deg,#00f5ff,#7b2ff7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.section { display:none; }
 
-.container{height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;}
-.glass-card{width:700px;max-height:90vh;overflow-y:auto;background:rgba(255,255,255,0.08);backdrop-filter:blur(15px);border-radius:20px;padding:35px;box-shadow:0 0 40px rgba(0,255,255,0.4);}
-.glass-card h2{text-align:center;margin-bottom:20px;background:linear-gradient(45deg,#00f5ff,#7b2ff7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-
-.section{display:none;}
-.section.active{display:block;}
-
-input,textarea,select{width:100%;padding:8px;margin:5px 0;border:none;border-radius:8px;}
-button.action{padding:8px 15px;border:none;border-radius:15px;cursor:pointer;margin:5px 0;}
-.next-btn{background:#00cc99;color:white;}
-.prev-btn{background:#ffaa00;color:white;}
-.submit-btn{background:#ff4d4d;color:white;}
-#resultCharts{display:flex;justify-content:space-around;margin-top:15px;}
-canvas{background:rgba(255,255,255,0.05);border-radius:10px;}
-
-/* Microphone button style */
-.mic-btn {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 12px;
-  background: #00cc99;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-  transition: transform 0.2s ease;
+/* Scrollable sections */
+.section {
+  max-height: calc(80vh - 60px);
+  overflow-y: auto;
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.3) transparent;
 }
-.mic-btn:hover {
-  animation: pulse 1s infinite;
+.section::-webkit-scrollbar {
+  width: 8px;
 }
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+.section::-webkit-scrollbar-track {
+  background: transparent;
 }
+.section::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,0.3);
+  border-radius: 4px;
+}
+
+.section.active { display:block; }
+
+input, select, textarea { width:100%; padding:10px; margin:8px 0; border:none; border-radius:10px; background: rgba(255,255,255,0.1); color:white; }
+input::placeholder{ color: rgba(255,255,255,0.7); }
+button.action { padding:8px 18px; margin:8px 4px 0 0; border:none; border-radius:12px; cursor:pointer; font-weight:bold; transition:all 0.2s ease; }
+button.action:hover{ transform:scale(1.05);}
+.next-btn{ background:#00cc99; color:white;} .prev-btn{background:#ffaa00;color:white;} .submit-btn{background:#ff4d4d;color:white;}
+.mic-btn{display:inline-flex;align-items:center;padding:8px 12px;border-radius:12px;background:#00cc99;color:white;margin-top:5px;cursor:pointer;}
+.mic-btn:hover{animation:pulse 1s infinite;} @keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.2);}100%{transform:scale(1);} }
+#resultCharts{display:flex;justify-content:space-around;margin-top:20px;}
+canvas{background: rgba(255,255,255,0.05); border-radius:10px; width:120px !important; height:120px !important;}
+.audio-wave{ width:100%; height:60px; background:rgba(255,255,255,0.05); border-radius:10px; margin-top:10px; }
 </style>
 </head>
 <body>
-
-<div class="gradient-bg"></div>
 <div id="particles-js"></div>
-
 <div class="container">
-<div class="glass-card">
-<h2>🤖 Ultra AI Communication Assessment</h2>
+  <div class="glass-card active">
+    <h2>🤖 Ultra AI Communication Assessment</h2>
 
-<!-- Section 1: User Info -->
-<div id="section1" class="section active">
-  <h3>Enter Your Details</h3>
-  <input type="text" id="name" placeholder="Full Name">
-  <input type="text" id="rollno" placeholder="Roll Number">
-  <input type="text" id="department" placeholder="Department">
-  <button class="action next-btn" onclick="nextSection(1)">Next</button>
-</div>
+    <!-- Section 1 -->
+    <div id="section1" class="section active">
+      <h3>Enter Your Details</h3>
+      <input type="text" id="name" placeholder="Full Name" required>
+      <input type="text" id="rollno" placeholder="Roll Number" required>
+      <input type="text" id="department" placeholder="Department" required>
+      <button class="action next-btn" onclick="nextSection(1)">Next</button>
+    </div>
 
-<!-- Section 2: Reading Test -->
-<div id="section2" class="section">
-  <h3>Reading Test</h3>
-  <div id="readingQuestions"></div>
-  <button class="action prev-btn" onclick="prevSection(2)">Previous</button>
-  <button class="action next-btn" onclick="nextSection(2)">Next</button>
-</div>
+    <!-- Section 2: Reading -->
+    <div id="section2" class="section">
+      <h3>Reading Test</h3>
+      <div id="readingQuestions"></div>
+      <canvas id="readingWave" class="audio-wave"></canvas>
+      <button class="action prev-btn" onclick="prevSection(2)">Previous</button>
+      <button class="action next-btn" onclick="nextSection(2)">Next</button>
+    </div>
 
-<!-- Section 3: Verbal Ability -->
-<div id="section3" class="section">
-  <h3>Verbal Ability (MCQ)</h3>
-  <div id="verbalQuestions"></div>
-  <button class="action prev-btn" onclick="prevSection(3)">Previous</button>
-  <button class="action next-btn" onclick="nextSection(3)">Next</button>
-</div>
+    <!-- Section 3: Verbal -->
+    <div id="section3" class="section">
+      <h3>Verbal Ability (MCQ)</h3>
+      <div id="verbalQuestions"></div>
+      <button class="action prev-btn" onclick="prevSection(3)">Previous</button>
+      <button class="action next-btn" onclick="nextSection(3)">Next</button>
+    </div>
 
-<!-- Section 4: AI Interview -->
-<div id="section4" class="section">
-  <h3>AI Interview Questions</h3>
-  <div id="interviewQuestions"></div>
-  <button class="action prev-btn" onclick="prevSection(4)">Previous</button>
-  <button class="action next-btn" onclick="nextSection(4)">Next</button>
-</div>
+    <!-- Section 4: Interview -->
+    <div id="section4" class="section">
+      <h3>AI Interview Questions</h3>
+      <div id="interviewQuestions"></div>
+      <canvas id="interviewWave" class="audio-wave"></canvas>
+      <button class="action prev-btn" onclick="prevSection(4)">Previous</button>
+      <button class="action next-btn" onclick="nextSection(4)">Next</button>
+      <!-- ✅ Submit moved here -->
+      <button class="action submit-btn" onclick="submitAssessment()">Submit Assessment</button>
+    </div>
 
-<!-- Section 5: Submit & Result -->
-<div id="section5" class="section">
-  <h3>Submit & View Result</h3>
-  <button class="action submit-btn" onclick="submitAssessment()">Submit Assessment</button>
-  <div id="resultCharts">
-    <canvas id="pieChart" width="150" height="150"></canvas>
-    <canvas id="barChart" width="150" height="150"></canvas>
+    <!-- Section 5: Result -->
+    <div id="section5" class="section">
+      <h3>Result</h3>
+      <div id="resultCharts">
+        <canvas id="pieChart"></canvas>
+        <canvas id="barChart"></canvas>
+      </div>
+      <button class="action submit-btn" onclick="downloadPDF()">Download PDF</button>
+      <button class="action prev-btn" onclick="prevSection(5)">Previous</button>
+    </div>
+
   </div>
-  <button class="action submit-btn" onclick="downloadPDF()">Download PDF</button>
-  <button class="action prev-btn" onclick="prevSection(5)">Previous</button>
-</div>
-
-</div>
 </div>
 
 <script>
-// Initialize Supabase
+// SUPABASE INIT
 const supabaseClient = supabase.createClient(
   "https://rmmgttfsqtgafkfmjztl.supabase.co",
   "sb_publishable_men_Rj_NvpjM_ZQeZc_kIA_pFS6VIcg"
 );
 
-let answers = {reading:[], verbal:[], interview:[]};
-let expectedReadingAnswers = [];
-let interviewKeywords = [];
-let pieChartInstance = null;
-let barChartInstance = null;
+let answers={reading:[], verbal:[], interview:[]};
+let expectedReadingAnswers=[], interviewKeywords=[]; 
+let pieChartInstance=null, barChartInstance=null;
 
-// Section navigation
-function nextSection(n){
-  const current = document.getElementById("section"+n);
-  const next = document.getElementById("section"+(n+1));
-  if(current) current.classList.remove("active");
-  if(next) next.classList.add("active");
+// Fade transition
+function nextSection(sec){fadeOut(document.getElementById("section"+sec)); fadeIn(document.getElementById("section"+(sec+1))); if(sec+1===2) loadReading(); if(sec+1===3) loadVerbal(); if(sec+1===4) loadInterview();}
+function prevSection(sec){fadeOut(document.getElementById("section"+sec)); fadeIn(document.getElementById("section"+(sec-1)));}
+
+function fadeIn(el){el.classList.add("active"); el.style.opacity=0; setTimeout(()=>{el.style.opacity=1;},50);}
+function fadeOut(el){el.style.opacity=0; setTimeout(()=>{el.classList.remove("active");},500);}
+
+// PARTICLES
+particlesJS("particles-js",{particles:{number:{value:80},color:{value:"#00f5ff"},shape:{type:"circle"},opacity:{value:0.5},size:{value:3},line_linked:{enable:true,distance:150,color:"#00f5ff",opacity:0.4,width:1},move:{enable:true,speed:2}},interactivity:{detect_on:"canvas",events:{onhover:{enable:true,mode:"grab"},onclick:{enable:true,mode:"push"}}},retina_detect:true});
+
+// MICROPHONE AUDIO WAVE
+function visualizeMic(canvasId){
+  const canvas=document.getElementById(canvasId);
+  const ctx=canvas.getContext("2d");
+  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+    const audioCtx=new AudioContext();
+    const source=audioCtx.createMediaStreamSource(stream);
+    const analyser=audioCtx.createAnalyser();
+    source.connect(analyser); analyser.fftSize=256;
+    const bufferLength=analyser.frequencyBinCount; const dataArray=new Uint8Array(bufferLength);
+    function draw(){
+      requestAnimationFrame(draw); analyser.getByteFrequencyData(dataArray);
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      const barWidth=canvas.width/bufferLength;
+      for(let i=0;i<bufferLength;i++){ const barHeight=dataArray[i]/2; ctx.fillStyle=`rgb(${barHeight+100},50,${255-barHeight})`; ctx.fillRect(i*barWidth,canvas.height-barHeight,barWidth,barHeight);}
+    } draw();
+  });
 }
 
-function prevSection(n){
-  const current = document.getElementById("section"+n);
-  const prev = document.getElementById("section"+(n-1));
-  if(current) current.classList.remove("active");
-  if(prev) prev.classList.add("active");
-}
+// READING ANSWER
+function captureReadingAnswer(i){visualizeMic('readingWave'); const recognition=new (window.SpeechRecognition || window.webkitSpeechRecognition)(); recognition.lang='en-US'; recognition.start(); recognition.onresult=e=>{answers.reading[i]=e.results[0][0].transcript; document.getElementById(`readingAns${i}`).innerText=" → "+answers.reading[i];};}
 
-// Load Reading Questions (Round 1) with 🎤
+// INTERVIEW ANSWER
+function captureInterviewAnswer(i){visualizeMic('interviewWave'); const recognition=new (window.SpeechRecognition || window.webkitSpeechRecognition)(); recognition.lang='en-US'; recognition.start(); recognition.onresult=e=>{answers.interview[i]=e.results[0][0].transcript; document.getElementById(`interviewAns${i}`).innerText=" → "+answers.interview[i];};}
+
+// PLAY INTERVIEW QUESTION
+function playInterviewAudio(text){const utter=new SpeechSynthesisUtterance(text); utter.rate=1; window.speechSynthesis.speak(utter);}
+
+// LOAD READING QUESTIONS
 async function loadReading(){
-  const {data} = await supabaseClient.from("reading_questions").select("*");
-  const div = document.getElementById("readingQuestions");
-  div.innerHTML="";
-  expectedReadingAnswers=[];
-  data.forEach((q,i)=>{
-    expectedReadingAnswers.push(q.correct_answer || "");
-    div.innerHTML+=`
-      <div style="margin-bottom:15px;">
-        ${i+1}. ${q.question}<br>
-        <button class="mic-btn" onclick="captureReadingAnswer(${i})">🎤 Answer via Voice</button>
-        <span id="readingAns${i}" style="margin-left:10px;"></span>
-      </div>
-    `;
-  });
+  const div=document.getElementById("readingQuestions"); div.innerHTML="Loading...";
+  const {data,error}=await supabaseClient.from("reading_questions").select("*");
+  if(error || !data.length){div.innerHTML="No Reading Questions Found."; return;}
+  div.innerHTML=""; expectedReadingAnswers=[];
+  data.forEach((q,i)=>{expectedReadingAnswers.push(q.correct_answer||""); div.innerHTML+=`<div style="margin-bottom:15px;">${i+1}. ${q.question}<br><button class="mic-btn" onclick="captureReadingAnswer(${i})">🎤 Answer via Voice</button><span id="readingAns${i}" style="margin-left:10px;"></span></div>`;});
 }
 
-// Load Verbal Questions (MCQs)
+// LOAD VERBAL QUESTIONS
 async function loadVerbal(){
-  const {data} = await supabaseClient.from("verbal_questions").select("*");
-  const div = document.getElementById("verbalQuestions");
+  const div=document.getElementById("verbalQuestions"); div.innerHTML="Loading...";
+  const {data,error}=await supabaseClient.from("verbal_questions").select("*");
+  if(error || !data.length){div.innerHTML="No Verbal Questions Found."; return;}
   div.innerHTML="";
-  data.forEach((q,i)=>{
-    div.innerHTML+=`<div style="margin-bottom:10px;">
-      ${i+1}. ${q.question}<br>
-      <input type="radio" name="v${i}" value="Option1"> ${q.option1}<br>
-      <input type="radio" name="v${i}" value="Option2"> ${q.option2}<br>
-      <input type="radio" name="v${i}" value="Option3"> ${q.option3}<br>
-      <input type="radio" name="v${i}" value="Option4"> ${q.option4}<br>
-    </div>`;
-  });
+  data.forEach((q,i)=>{div.innerHTML+=`<div style="margin-bottom:10px;">${i+1}. ${q.question}<br>
+  <input type="radio" name="v${i}" value="${q.option1}"> ${q.option1}<br>
+  <input type="radio" name="v${i}" value="${q.option2}"> ${q.option2}<br>
+  <input type="radio" name="v${i}" value="${q.option3}"> ${q.option3}<br>
+  <input type="radio" name="v${i}" value="${q.option4}"> ${q.option4}<br></div>`;});
 }
 
-// Load Interview Questions (Round 3) with 🎤
+// LOAD INTERVIEW QUESTIONS
+// LOAD INTERVIEW QUESTIONS
 async function loadInterview(){
-  const {data} = await supabaseClient.from("interview_questions").select("*");
-  const div = document.getElementById("interviewQuestions");
-  div.innerHTML="";
+  const div=document.getElementById("interviewQuestions"); 
+  div.innerHTML="Loading...";
+  const {data,error}=await supabaseClient.from("interview_questions").select("*");
+  if(error || !data.length){div.innerHTML="No Interview Questions Found."; return;}
+  
+  div.innerHTML=""; 
   interviewKeywords=[];
-  data.forEach((q,i)=>{
-    interviewKeywords.push(q.keywords || ["answer"]);
-    div.innerHTML+=`
-      <div style="margin-bottom:15px;">
-        ${i+1}. ${q.question}<br>
-        <button class="mic-btn" onclick="captureInterviewAnswer(${i})">🎤 Answer via Voice</button>
-        <span id="interviewAns${i}" style="margin-left:10px;"></span>
-      </div>
-    `;
-  });
-}
 
-// Voice capture functions
-function captureReadingAnswer(i){
-  answers.reading[i]="";
-  document.getElementById(`readingAns${i}`).innerText="";
-  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  recognition.lang='en-US';
-  recognition.interimResults=false;
-  recognition.maxAlternatives=1;
-  recognition.start();
-  recognition.onresult=function(event){
-    const transcript=event.results[0][0].transcript;
-    answers.reading[i]=transcript;
-    document.getElementById(`readingAns${i}`).innerText=` → ${transcript}`;
+  for(let i=0;i<data.length;i++){
+    const q=data[i]; 
+    interviewKeywords.push(q.keywords||[]);
+    div.innerHTML+=`<div style="margin-bottom:15px;">${i+1}. ${q.question}<br>
+      <button class="mic-btn" onclick="captureInterviewAnswer(${i})">🎤 Answer via Voice</button>
+      <span id="interviewAns${i}" style="margin-left:10px;"></span></div>`;
+
+    // ✅ Only play audio if Section 4 is still active
+    if(document.getElementById("section4").classList.contains("active")){
+      await new Promise(r=>setTimeout(r,500)); 
+      playInterviewAudio(q.question);
+    }
   }
 }
 
-function captureInterviewAnswer(i){
-  answers.interview[i]="";
-  document.getElementById(`interviewAns${i}`).innerText="";
-  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  recognition.lang='en-US';
-  recognition.interimResults=false;
-  recognition.maxAlternatives=1;
-  recognition.start();
-  recognition.onresult=function(event){
-    const transcript=event.results[0][0].transcript;
-    answers.interview[i]=transcript;
-    document.getElementById(`interviewAns${i}`).innerText=` → ${transcript}`;
-  }
-}
-
-// Submit Assessment with Random Round 1 & 3 Scores
-async function submitAssessment(){
-  const verbalQ=document.querySelectorAll("#verbalQuestions div");
-  verbalQ.forEach((div,i)=>{
-    const sel=document.querySelector(`input[name="v${i}"]:checked`);
-    answers.verbal[i]=sel?sel.value:"";
-  });
-
-  const {data: verbalData } = await supabaseClient.from("verbal_questions").select("*");
-
-  const scoreR = Math.floor(Math.random() * (expectedReadingAnswers.length+1)); // Random Reading
-  const scoreI = Math.floor(Math.random() * (interviewKeywords.length+1));       // Random Interview
-
-  // Verbal normal scoring
-  let scoreV=0;
-  verbalData.forEach((q,i)=>{
-    if(answers.verbal[i]===q.correct_option) scoreV++;
-  });
-
-  // Charts
-  const pieCtx=document.getElementById("pieChart").getContext("2d");
-  if(pieChartInstance) pieChartInstance.destroy();
-  pieChartInstance=new Chart(pieCtx,{
-    type:'pie',
-    data:{labels:['Reading','Verbal','Interview'],datasets:[{data:[scoreR,scoreV,scoreI],backgroundColor:['#00f5ff','#7b2ff7','#00ffcc']}]}
-  });
-
-  const barCtx=document.getElementById("barChart").getContext("2d");
-  if(barChartInstance) barChartInstance.destroy();
-  barChartInstance=new Chart(barCtx,{
-    type:'bar',
-    data:{labels:['Reading','Verbal','Interview'],datasets:[{label:'Score',data:[scoreR,scoreV,scoreI],backgroundColor:['#00f5ff','#7b2ff7','#00ffcc']}]},
-    options:{scales:{y:{beginAtZero:true}}}
-  });
-
-  // Show section 5
-  const current=document.querySelector(".section.active");
-  if(current) current.classList.remove("active");
-  const section5=document.getElementById("section5");
-  if(section5) section5.classList.add("active");
+// ✅ SUBMIT & SHOW CHARTS
+function submitAssessment(){
+  let scoreR=expectedReadingAnswers.length; 
+  const verbalInputs=document.querySelectorAll("#verbalQuestions div");
+  verbalInputs.forEach((div,i)=>{ const sel=document.querySelector(`input[name="v${i}"]:checked`); if(sel) answers.verbal[i]=sel.value; });
+  let scoreV = answers.verbal.filter(v=>v).length;
+  let scoreI = interviewKeywords.length;
 
   window.latestScores={scoreR,scoreV,scoreI};
+
+  const pieCtx=document.getElementById("pieChart").getContext("2d"); if(pieChartInstance) pieChartInstance.destroy();
+  pieChartInstance=new Chart(pieCtx,{type:'pie',data:{labels:['Reading','Verbal','Interview'],datasets:[{data:[scoreR,scoreV,scoreI],backgroundColor:['#00f5ff','#7b2ff7','#00ffcc']}]},options:{plugins:{legend:{display:true,position:'bottom'}}}});
+
+  const barCtx=document.getElementById("barChart").getContext("2d"); if(barChartInstance) barChartInstance.destroy();
+  barChartInstance=new Chart(barCtx,{type:'bar',data:{labels:['Reading','Verbal','Interview'],datasets:[{label:'Score',data:[scoreR,scoreV,scoreI],backgroundColor:['#00f5ff','#7b2ff7','#00ffcc']}]},options:{scales:{y:{beginAtZero:true}},plugins:{legend:{display:false}}}});
+
+  fadeOut(document.querySelector(".section.active")); 
+  fadeIn(document.getElementById("section5"));
 }
 
 // Download PDF Certificate with Charts
@@ -319,11 +281,6 @@ function downloadPDF(){
 
   doc.save("Communication_Result.pdf");
 }
-
-// Load questions & particles
-loadReading(); loadVerbal(); loadInterview();
-particlesJS("particles-js",{particles:{number:{value:80},size:{value:3},move:{speed:2},line_linked:{enable:true}}});
 </script>
-
 </body>
 </html>
