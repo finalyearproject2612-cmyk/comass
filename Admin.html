@@ -20,7 +20,6 @@ body{background:#0f2027;color:white;overflow:hidden;}
 .glass-card h2{text-align:center;margin-bottom:20px;background:linear-gradient(45deg,#00f5ff,#7b2ff7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .tabs{display:flex;justify-content:space-between;margin-bottom:20px;}
 .tab-btn{flex:1;margin:0 5px;padding:8px;border:none;border-radius:20px;cursor:pointer;background:linear-gradient(45deg,#00f5ff,#7b2ff7);color:white;}
-.tab-btn:hover{box-shadow:0 0 15px cyan;}
 input, textarea, select{width:100%;padding:8px;margin:5px 0;border:none;border-radius:8px;}
 button.action{padding:6px 15px;border:none;border-radius:15px;cursor:pointer;margin:5px 5px 5px 0;}
 .add-btn{background:#00cc99;color:white;}
@@ -33,8 +32,12 @@ button.action{padding:6px 15px;border:none;border-radius:15px;cursor:pointer;mar
 .modal-content button{width:100%;margin-top:10px;}
 .logout{text-align:center;margin-top:15px;cursor:pointer;opacity:0.7;}
 .logout:hover{opacity:1;}
+.search{margin-bottom:10px}
+.counter{font-size:12px;opacity:0.7;margin-bottom:10px}
+.notification{position:fixed;bottom:20px;right:20px;background:#00cc99;padding:10px 20px;border-radius:10px;display:none}
 </style>
 </head>
+
 <body>
 
 <div class="gradient-bg"></div>
@@ -45,19 +48,20 @@ button.action{padding:6px 15px;border:none;border-radius:15px;cursor:pointer;mar
 <h2>🤖 Ultra AI Admin Panel</h2>
 
 <div class="tabs">
-  <button class="tab-btn" onclick="showTab('reading')">Reading</button>
-  <button class="tab-btn" onclick="showTab('verbal')">Verbal</button>
-  <button class="tab-btn" onclick="showTab('interview')">Interview</button>
+<button class="tab-btn" onclick="showTab('reading')">Reading</button>
+<button class="tab-btn" onclick="showTab('verbal')">Verbal</button>
+<button class="tab-btn" onclick="showTab('interview')">Interview</button>
 </div>
 
-<!-- Reading Section -->
+<input class="search" id="searchBox" placeholder="Search questions..." onkeyup="filterQuestions()">
+<div class="counter" id="counter"></div>
+
 <div id="reading">
 <textarea id="readingQ" placeholder="Enter Reading Question"></textarea>
 <button class="action add-btn" onclick="addReading()">Add</button>
 <div id="readingList"></div>
 </div>
 
-<!-- Verbal Section -->
 <div id="verbal" style="display:none;">
 <input id="vQ" placeholder="Question">
 <input id="o1" placeholder="Option1">
@@ -74,7 +78,6 @@ button.action{padding:6px 15px;border:none;border-radius:15px;cursor:pointer;mar
 <div id="verbalList"></div>
 </div>
 
-<!-- Interview Section -->
 <div id="interview" style="display:none;">
 <textarea id="interviewQ" placeholder="Enter Interview Question"></textarea>
 <button class="action add-btn" onclick="addInterview()">Add</button>
@@ -85,36 +88,43 @@ button.action{padding:6px 15px;border:none;border-radius:15px;cursor:pointer;mar
 </div>
 </div>
 
-<!-- Edit Modal -->
 <div class="modal" id="editModal">
-  <div class="modal-content">
-    <h3>Edit Question</h3>
-    <div id="modalReading" style="display:none;">
-      <textarea id="editReadingText"></textarea>
-    </div>
-    <div id="modalVerbal" style="display:none;">
-      <input id="editVQ" placeholder="Question">
-      <input id="editO1" placeholder="Option1">
-      <input id="editO2" placeholder="Option2">
-      <input id="editO3" placeholder="Option3">
-      <input id="editO4" placeholder="Option4">
-      <select id="editCorrect">
-        <option>Option1</option>
-        <option>Option2</option>
-        <option>Option3</option>
-        <option>Option4</option>
-      </select>
-    </div>
-    <div id="modalInterview" style="display:none;">
-      <textarea id="editInterviewText"></textarea>
-    </div>
-    <button class="action add-btn" onclick="updateQuestion()">Update</button>
-    <button class="action delete-btn" onclick="closeModal()">Cancel</button>
-  </div>
+<div class="modal-content">
+<h3>Edit Question</h3>
+
+<div id="modalReading">
+<textarea id="editReadingText"></textarea>
 </div>
 
+<div id="modalVerbal">
+<input id="editVQ">
+<input id="editO1">
+<input id="editO2">
+<input id="editO3">
+<input id="editO4">
+<select id="editCorrect">
+<option>Option1</option>
+<option>Option2</option>
+<option>Option3</option>
+<option>Option4</option>
+</select>
+</div>
+
+<div id="modalInterview">
+<textarea id="editInterviewText"></textarea>
+</div>
+
+<button class="action add-btn" onclick="updateQuestion()">Update</button>
+<button class="action delete-btn" onclick="closeModal()">Cancel</button>
+</div>
+</div>
+
+<div class="notification" id="notify"></div>
+
 <script>
+
 if(sessionStorage.getItem("adminAuth")!=="true"){location.href="index.html";}
+
 const supabaseClient = supabase.createClient(
 "https://rmmgttfsqtgafkfmjztl.supabase.co",
 "sb_publishable_men_Rj_NvpjM_ZQeZc_kIA_pFS6VIcg"
@@ -122,83 +132,147 @@ const supabaseClient = supabase.createClient(
 
 let currentTable="", currentId="", currentType="";
 
+function notify(msg){
+let n=document.getElementById("notify")
+n.innerText=msg
+n.style.display="block"
+setTimeout(()=>n.style.display="none",2000)
+}
+
 function showTab(tab){
-  document.getElementById("reading").style.display="none";
-  document.getElementById("verbal").style.display="none";
-  document.getElementById("interview").style.display="none";
-  document.getElementById(tab).style.display="block";
-  loadQuestions(tab);
+document.getElementById("reading").style.display="none";
+document.getElementById("verbal").style.display="none";
+document.getElementById("interview").style.display="none";
+document.getElementById(tab).style.display="block";
+loadQuestions(tab);
 }
 
 async function loadQuestions(type){
-  const {data}=await supabaseClient.from(type+"_questions").select("*");
-  let list=document.getElementById(type+"List");
-  list.innerHTML="";
-  data.forEach(q=>{
-    list.innerHTML+=`
-      <div class="question-box">
-        ${q.question}
-        <br>
-        <button class="action edit-btn" onclick="openModal('${type}_questions','${q.id}','${type}','${encodeURIComponent(JSON.stringify(q))}')">Edit</button>
-        <button class="action delete-btn" onclick="deleteQuestion('${type}_questions','${q.id}')">Delete</button>
-      </div>`;
-  });
+const {data}=await supabaseClient.from(type+"_questions").select("*");
+let list=document.getElementById(type+"List");
+list.innerHTML="";
+document.getElementById("counter").innerText=data.length+" Questions";
+
+data.forEach(q=>{
+list.innerHTML+=`
+<div class="question-box">
+${q.question}
+<br>
+<button class="action edit-btn" onclick="openModal('${type}_questions','${q.id}','${type}','${encodeURIComponent(JSON.stringify(q))}')">Edit</button>
+<button class="action delete-btn" onclick="deleteQuestion('${type}_questions','${q.id}')">Delete</button>
+</div>`
+})
 }
 
-/* Add */
-async function addReading(){await supabaseClient.from("reading_questions").insert({question:readingQ.value}); readingQ.value=""; loadQuestions("reading");}
-async function addVerbal(){await supabaseClient.from("verbal_questions").insert({
-  question:vQ.value, option1:o1.value, option2:o2.value, option3:o3.value, option4:o4.value, correct_option:correct.value
-}); vQ.value=o1.value=o2.value=o3.value=o4.value=""; loadQuestions("verbal");}
-async function addInterview(){await supabaseClient.from("interview_questions").insert({question:interviewQ.value}); interviewQ.value=""; loadQuestions("interview");}
+function filterQuestions(){
+let val=document.getElementById("searchBox").value.toLowerCase()
+document.querySelectorAll(".question-box").forEach(q=>{
+q.style.display=q.innerText.toLowerCase().includes(val)?"block":"none"
+})
+}
 
-/* Open Modal */
+async function addReading(){
+await supabaseClient.from("reading_questions").insert({question:readingQ.value})
+readingQ.value=""
+notify("Reading Question Added")
+loadQuestions("reading")
+}
+
+async function addVerbal(){
+await supabaseClient.from("verbal_questions").insert({
+question:vQ.value,
+option1:o1.value,
+option2:o2.value,
+option3:o3.value,
+option4:o4.value,
+correct_option:correct.value
+})
+notify("Verbal Question Added")
+loadQuestions("verbal")
+}
+
+async function addInterview(){
+await supabaseClient.from("interview_questions").insert({question:interviewQ.value})
+interviewQ.value=""
+notify("Interview Question Added")
+loadQuestions("interview")
+}
+
 function openModal(table,id,type,qStr){
-  currentTable=table; currentId=id; currentType=type;
-  document.getElementById("modalReading").style.display="none";
-  document.getElementById("modalVerbal").style.display="none";
-  document.getElementById("modalInterview").style.display="none";
-  const qObj=JSON.parse(decodeURIComponent(qStr));
-  if(type=="reading"){document.getElementById("modalReading").style.display="block"; document.getElementById("editReadingText").value=qObj.question;}
-  else if(type=="verbal"){
-    document.getElementById("modalVerbal").style.display="block";
-    document.getElementById("editVQ").value=qObj.question;
-    document.getElementById("editO1").value=qObj.option1;
-    document.getElementById("editO2").value=qObj.option2;
-    document.getElementById("editO3").value=qObj.option3;
-    document.getElementById("editO4").value=qObj.option4;
-    document.getElementById("editCorrect").value=qObj.correct_option;
-  }
-  else if(type=="interview"){document.getElementById("modalInterview").style.display="block"; document.getElementById("editInterviewText").value=qObj.question;}
-  document.getElementById("editModal").style.display="flex";
-}
-function closeModal(){document.getElementById("editModal").style.display="none";}
+currentTable=table
+currentId=id
+currentType=type
 
-/* Update */
+const qObj=JSON.parse(decodeURIComponent(qStr))
+
+if(type=="reading") editReadingText.value=qObj.question
+if(type=="interview") editInterviewText.value=qObj.question
+
+if(type=="verbal"){
+editVQ.value=qObj.question
+editO1.value=qObj.option1
+editO2.value=qObj.option2
+editO3.value=qObj.option3
+editO4.value=qObj.option4
+editCorrect.value=qObj.correct_option
+}
+
+editModal.style.display="flex"
+}
+
+function closeModal(){editModal.style.display="none"}
+
 async function updateQuestion(){
-  if(currentType=="reading"){await supabaseClient.from(currentTable).update({question:document.getElementById("editReadingText").value}).eq("id",currentId);}
-  else if(currentType=="verbal"){await supabaseClient.from(currentTable).update({
-    question:document.getElementById("editVQ").value,
-    option1:document.getElementById("editO1").value,
-    option2:document.getElementById("editO2").value,
-    option3:document.getElementById("editO3").value,
-    option4:document.getElementById("editO4").value,
-    correct_option:document.getElementById("editCorrect").value
-  }).eq("id",currentId);}
-  else if(currentType=="interview"){await supabaseClient.from(currentTable).update({question:document.getElementById("editInterviewText").value}).eq("id",currentId);}
-  closeModal();
-  showTab(currentType);
+
+if(currentType=="reading"){
+await supabaseClient.from(currentTable)
+.update({question:editReadingText.value})
+.eq("id",currentId)
 }
 
-/* Delete */
-async function deleteQuestion(table,id){await supabaseClient.from(table).delete().eq("id",id); showTab(table.replace("_questions",""));}
-function logout(){sessionStorage.removeItem("adminAuth"); location.href="index.html";}
+if(currentType=="interview"){
+await supabaseClient.from(currentTable)
+.update({question:editInterviewText.value})
+.eq("id",currentId)
+}
 
-showTab("reading");
+if(currentType=="verbal"){
+await supabaseClient.from(currentTable)
+.update({
+question:editVQ.value,
+option1:editO1.value,
+option2:editO2.value,
+option3:editO3.value,
+option4:editO4.value,
+correct_option:editCorrect.value
+})
+.eq("id",currentId)
+}
 
-/* Particles */
-particlesJS("particles-js", {particles:{number:{value:80}, size:{value:3}, move:{speed:2}, line_linked:{enable:true}}});
+notify("Question Updated")
+closeModal()
+showTab(currentType)
+}
+
+async function deleteQuestion(table,id){
+if(confirm("Delete this question?")){
+await supabaseClient.from(table).delete().eq("id",id)
+notify("Question Deleted")
+showTab(table.replace("_questions",""))
+}
+}
+
+function logout(){
+sessionStorage.removeItem("adminAuth")
+location.href="index.html"
+}
+
+showTab("reading")
+
+particlesJS("particles-js",{
+particles:{number:{value:80},size:{value:3},move:{speed:2},line_linked:{enable:true}}
+})
+
 </script>
-
 </body>
 </html>

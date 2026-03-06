@@ -3,284 +3,231 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultra AI Communication Assessment</title>
-
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-
-<!-- Libraries -->
+<title>Ultra AI Communication Assessment V2 - Premium UI</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-html, body { margin:0; padding:0; height:100%; font-family:'Poppins',sans-serif; background:#0f2027; color:white; overflow:hidden; }
-#particles-js { position:fixed; width:100%; height:100%; z-index:-1; }
-.container { width:100%; height:100%; display:flex; justify-content:center; align-items:center; }
-.glass-card { width:80%; max-width:900px; min-height:80vh; background:rgba(255,255,255,0.08); backdrop-filter:blur(20px); border-radius:20px; padding:40px; box-shadow:0 0 40px rgba(0,255,255,0.3); overflow:hidden; position:relative; opacity:0; transform:translateY(40px); transition: all 0.5s ease; }
-.glass-card.active { opacity:1; transform:translateY(0); }
-h2 { text-align:center; margin-bottom:25px; font-size:28px; background:linear-gradient(45deg,#00f5ff,#7b2ff7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.section { display:none; }
-
-/* Scrollable sections */
-.section {
-  max-height: calc(80vh - 60px);
-  overflow-y: auto;
-  padding-right: 10px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.3) transparent;
-}
-.section::-webkit-scrollbar {
-  width: 8px;
-}
-.section::-webkit-scrollbar-track {
-  background: transparent;
-}
-.section::-webkit-scrollbar-thumb {
-  background-color: rgba(255,255,255,0.3);
-  border-radius: 4px;
-}
-
-.section.active { display:block; }
-
-input, select, textarea { width:100%; padding:10px; margin:8px 0; border:none; border-radius:10px; background: rgba(255,255,255,0.1); color:white; }
-input::placeholder{ color: rgba(255,255,255,0.7); }
-button.action { padding:8px 18px; margin:8px 4px 0 0; border:none; border-radius:12px; cursor:pointer; font-weight:bold; transition:all 0.2s ease; }
-button.action:hover{ transform:scale(1.05);}
-.next-btn{ background:#00cc99; color:white;} .prev-btn{background:#ffaa00;color:white;} .submit-btn{background:#ff4d4d;color:white;}
-.mic-btn{display:inline-flex;align-items:center;padding:8px 12px;border-radius:12px;background:#00cc99;color:white;margin-top:5px;cursor:pointer;}
-.mic-btn:hover{animation:pulse 1s infinite;} @keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.2);}100%{transform:scale(1);} }
-#resultCharts{display:flex;justify-content:space-around;margin-top:20px;}
-canvas{background: rgba(255,255,255,0.05); border-radius:10px; width:120px !important; height:120px !important;}
-.audio-wave{ width:100%; height:60px; background:rgba(255,255,255,0.05); border-radius:10px; margin-top:10px; }
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{height:100vh;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:white;overflow:hidden;}
+#particles-js{position:fixed;width:100%;height:100%;z-index:-1;}
+.container{height:100%;display:flex;align-items:center;justify-content:center;padding:20px;}
+.card{width:900px;max-width:95%;height:85vh;background:rgba(255,255,255,0.05);backdrop-filter:blur(30px);border-radius:30px;border:1px solid rgba(255,255,255,0.1);box-shadow:0 0 60px rgba(0,255,255,0.2),0 0 100px rgba(0,0,0,0.6);padding:35px;display:flex;flex-direction:column;justify-content:space-between;transition:all 0.5s ease;}
+.title{text-align:center;font-size:32px;font-weight:800;background:linear-gradient(45deg,#00f5ff,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.timer{font-size:14px;opacity:.85;}
+.progressbar{flex:1;height:12px;margin-left:20px;background:rgba(255,255,255,0.1);border-radius:50px;overflow:hidden;position:relative;}
+.progress{height:100%;width:0%;background:linear-gradient(90deg,#00f5ff,#7b2ff7);border-radius:50px;transition:0.4s;}
+.question-area{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:20px;opacity:0;transform:translateY(20px);transition:all 0.6s ease;}
+.question-area.show{opacity:1;transform:translateY(0);}
+.question{font-size:24px;font-weight:700;margin-bottom:20px;line-height:1.5;}
+input,textarea{width:100%;padding:14px;border:none;border-radius:15px;margin-top:12px;background:rgba(255,255,255,0.12);color:white;font-size:16px;outline:none;transition:0.3s;}
+input:focus,textarea:focus{background:rgba(255,255,255,0.2);}
+.options{margin-top:15px;text-align:left;width:100%;max-width:500px;}
+.options label{display:block;padding:14px;margin:8px 0;background:rgba(255,255,255,0.08);border-radius:15px;cursor:pointer;transition:0.3s;position:relative;}
+.options label:hover{background:rgba(0,255,255,0.15);transform:scale(1.03);}
+button{padding:12px 26px;border:none;border-radius:15px;font-weight:700;cursor:pointer;margin:6px;transition:.3s;}
+button:hover{transform:scale(1.05);}
+.next{background:linear-gradient(45deg,#00f5ff,#00cc99);color:black;box-shadow:0 0 15px #00f5ff;}
+.prev{background:linear-gradient(45deg,#ffaa00,#ff6600);color:black;box-shadow:0 0 15px #ffaa00;}
+.submit{background:linear-gradient(45deg,#ff3d3d,#ff0066);color:white;box-shadow:0 0 15px #ff3d3d;}
+.mic{background:linear-gradient(45deg,#00f5ff,#a855f7);color:black;font-size:16px;box-shadow:0 0 15px #00f5ff;}
+.nav{display:flex;justify-content:center;margin-top:15px;}
+.wave{width:340px;height:80px;margin-top:15px;background:rgba(255,255,255,0.1);border-radius:15px;box-shadow:0 0 10px #00f5ff inset;}
+.result-dashboard{display:flex;gap:30px;justify-content:center;margin-top:25px;flex-wrap:wrap;}
+canvas{width:260px !important;height:260px !important;background:rgba(255,255,255,0.08);border-radius:15px;padding:12px;}
+.feedback{margin-top:10px;font-size:14px;color:#00ffcc;font-weight:600;}
+.avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(45deg,#00f5ff,#a855f7);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:30px;animation:float 2s infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+@media(max-width:600px){.card{padding:20px;height:auto;}}
 </style>
 </head>
+
 <body>
 <div id="particles-js"></div>
 <div class="container">
-  <div class="glass-card active">
-    <h2>🤖 Ultra AI Communication Assessment</h2>
+<div class="card">
+<div>
+<div class="title">🤖 Ultra AI Communication Assessment V2</div>
+<div class="topbar">
+<div class="timer" id="timer">00:30</div>
+<div class="progressbar"><div class="progress" id="progress"></div></div>
+</div>
+</div>
 
-    <!-- Section 1 -->
-    <div id="section1" class="section active">
-      <h3>Enter Your Details</h3>
-      <input type="text" id="name" placeholder="Full Name" required>
-      <input type="text" id="rollno" placeholder="Roll Number" required>
-      <input type="text" id="department" placeholder="Department" required>
-      <button class="action next-btn" onclick="nextSection(1)">Next</button>
-    </div>
+<div class="question-area" id="content"></div>
 
-    <!-- Section 2: Reading -->
-    <div id="section2" class="section">
-      <h3>Reading Test</h3>
-      <div id="readingQuestions"></div>
-      <canvas id="readingWave" class="audio-wave"></canvas>
-      <button class="action prev-btn" onclick="prevSection(2)">Previous</button>
-      <button class="action next-btn" onclick="nextSection(2)">Next</button>
-    </div>
-
-    <!-- Section 3: Verbal -->
-    <div id="section3" class="section">
-      <h3>Verbal Ability (MCQ)</h3>
-      <div id="verbalQuestions"></div>
-      <button class="action prev-btn" onclick="prevSection(3)">Previous</button>
-      <button class="action next-btn" onclick="nextSection(3)">Next</button>
-    </div>
-
-    <!-- Section 4: Interview -->
-    <div id="section4" class="section">
-      <h3>AI Interview Questions</h3>
-      <div id="interviewQuestions"></div>
-      <canvas id="interviewWave" class="audio-wave"></canvas>
-      <button class="action prev-btn" onclick="prevSection(4)">Previous</button>
-      <button class="action next-btn" onclick="nextSection(4)">Next</button>
-      <!-- ✅ Submit moved here -->
-      <button class="action submit-btn" onclick="submitAssessment()">Submit Assessment</button>
-    </div>
-
-    <!-- Section 5: Result -->
-    <div id="section5" class="section">
-      <h3>Result</h3>
-      <div id="resultCharts">
-        <canvas id="pieChart"></canvas>
-        <canvas id="barChart"></canvas>
-      </div>
-      <button class="action submit-btn" onclick="downloadPDF()">Download PDF</button>
-      <button class="action prev-btn" onclick="prevSection(5)">Previous</button>
-    </div>
-
-  </div>
+<div class="nav">
+<button class="prev" onclick="prev()">Previous</button>
+<button class="next" onclick="next()">Next</button>
+</div>
+</div>
 </div>
 
 <script>
-// SUPABASE INIT
 const supabaseClient = supabase.createClient(
   "https://rmmgttfsqtgafkfmjztl.supabase.co",
   "sb_publishable_men_Rj_NvpjM_ZQeZc_kIA_pFS6VIcg"
 );
+particlesJS("particles-js",{particles:{number:{value:100},size:{value:3},move:{speed:2},line_linked:{enable:true}}})
 
-let answers={reading:[], verbal:[], interview:[]};
-let expectedReadingAnswers=[], interviewKeywords=[]; 
-let pieChartInstance=null, barChartInstance=null;
+let step=0,totalSteps=1,timeLeft=30,timerInterval;
+let reading=[],verbal=[],interview=[];
+let answers={reading:[],verbal:[],interview:[],scores:[],feedback:[],candidate:{}};
 
-// Fade transition
-function nextSection(sec){fadeOut(document.getElementById("section"+sec)); fadeIn(document.getElementById("section"+(sec+1))); if(sec+1===2) loadReading(); if(sec+1===3) loadVerbal(); if(sec+1===4) loadInterview();}
-function prevSection(sec){fadeOut(document.getElementById("section"+sec)); fadeIn(document.getElementById("section"+(sec-1)));}
-
-function fadeIn(el){el.classList.add("active"); el.style.opacity=0; setTimeout(()=>{el.style.opacity=1;},50);}
-function fadeOut(el){el.style.opacity=0; setTimeout(()=>{el.classList.remove("active");},500);}
-
-// PARTICLES
-particlesJS("particles-js",{particles:{number:{value:80},color:{value:"#00f5ff"},shape:{type:"circle"},opacity:{value:0.5},size:{value:3},line_linked:{enable:true,distance:150,color:"#00f5ff",opacity:0.4,width:1},move:{enable:true,speed:2}},interactivity:{detect_on:"canvas",events:{onhover:{enable:true,mode:"grab"},onclick:{enable:true,mode:"push"}}},retina_detect:true});
-
-// MICROPHONE AUDIO WAVE
-function visualizeMic(canvasId){
-  const canvas=document.getElementById(canvasId);
-  const ctx=canvas.getContext("2d");
-  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
-    const audioCtx=new AudioContext();
-    const source=audioCtx.createMediaStreamSource(stream);
-    const analyser=audioCtx.createAnalyser();
-    source.connect(analyser); analyser.fftSize=256;
-    const bufferLength=analyser.frequencyBinCount; const dataArray=new Uint8Array(bufferLength);
-    function draw(){
-      requestAnimationFrame(draw); analyser.getByteFrequencyData(dataArray);
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      const barWidth=canvas.width/bufferLength;
-      for(let i=0;i<bufferLength;i++){ const barHeight=dataArray[i]/2; ctx.fillStyle=`rgb(${barHeight+100},50,${255-barHeight})`; ctx.fillRect(i*barWidth,canvas.height-barHeight,barWidth,barHeight);}
-    } draw();
-  });
+// Load Questions
+async function loadQuestions(){
+  const r=await supabaseClient.from("reading_questions").select("*")
+  const v=await supabaseClient.from("verbal_questions").select("*")
+  const i=await supabaseClient.from("interview_questions").select("*")
+  reading=r.data; verbal=v.data; interview=i.data;
+  totalSteps=1+reading.length+verbal.length+interview.length+1;
+  render();
 }
 
-// READING ANSWER
-function captureReadingAnswer(i){visualizeMic('readingWave'); const recognition=new (window.SpeechRecognition || window.webkitSpeechRecognition)(); recognition.lang='en-US'; recognition.start(); recognition.onresult=e=>{answers.reading[i]=e.results[0][0].transcript; document.getElementById(`readingAns${i}`).innerText=" → "+answers.reading[i];};}
+// Timer
+function startTimer(){clearInterval(timerInterval);timeLeft=30;timerInterval=setInterval(()=>{timeLeft--;document.getElementById("timer").innerText="00:"+String(timeLeft).padStart(2,'0');if(timeLeft<=0) next();},1000);}
+function updateProgress(){document.getElementById("progress").style.width=((step/totalSteps)*100)+"%";}
 
-// INTERVIEW ANSWER
-function captureInterviewAnswer(i){visualizeMic('interviewWave'); const recognition=new (window.SpeechRecognition || window.webkitSpeechRecognition)(); recognition.lang='en-US'; recognition.start(); recognition.onresult=e=>{answers.interview[i]=e.results[0][0].transcript; document.getElementById(`interviewAns${i}`).innerText=" → "+answers.interview[i];};}
-
-// PLAY INTERVIEW QUESTION
-function playInterviewAudio(text){const utter=new SpeechSynthesisUtterance(text); utter.rate=1; window.speechSynthesis.speak(utter);}
-
-// LOAD READING QUESTIONS
-async function loadReading(){
-  const div=document.getElementById("readingQuestions"); div.innerHTML="Loading...";
-  const {data,error}=await supabaseClient.from("reading_questions").select("*");
-  if(error || !data.length){div.innerHTML="No Reading Questions Found."; return;}
-  div.innerHTML=""; expectedReadingAnswers=[];
-  data.forEach((q,i)=>{expectedReadingAnswers.push(q.correct_answer||""); div.innerHTML+=`<div style="margin-bottom:15px;">${i+1}. ${q.question}<br><button class="mic-btn" onclick="captureReadingAnswer(${i})">🎤 Answer via Voice</button><span id="readingAns${i}" style="margin-left:10px;"></span></div>`;});
+// Save candidate info
+function saveCandidateInfo(){
+  if(step===0){
+    answers.candidate.name = document.getElementById("name").value || "N/A";
+    answers.candidate.roll = document.getElementById("roll").value || "N/A";
+    answers.candidate.dept = document.getElementById("dept").value || "N/A";
+  }
 }
 
-// LOAD VERBAL QUESTIONS
-async function loadVerbal(){
-  const div=document.getElementById("verbalQuestions"); div.innerHTML="Loading...";
-  const {data,error}=await supabaseClient.from("verbal_questions").select("*");
-  if(error || !data.length){div.innerHTML="No Verbal Questions Found."; return;}
-  div.innerHTML="";
-  data.forEach((q,i)=>{div.innerHTML+=`<div style="margin-bottom:10px;">${i+1}. ${q.question}<br>
-  <input type="radio" name="v${i}" value="${q.option1}"> ${q.option1}<br>
-  <input type="radio" name="v${i}" value="${q.option2}"> ${q.option2}<br>
-  <input type="radio" name="v${i}" value="${q.option3}"> ${q.option3}<br>
-  <input type="radio" name="v${i}" value="${q.option4}"> ${q.option4}<br></div>`;});
-}
-
-// LOAD INTERVIEW QUESTIONS
-// LOAD INTERVIEW QUESTIONS
-async function loadInterview(){
-  const div=document.getElementById("interviewQuestions"); 
-  div.innerHTML="Loading...";
-  const {data,error}=await supabaseClient.from("interview_questions").select("*");
-  if(error || !data.length){div.innerHTML="No Interview Questions Found."; return;}
+// Render
+function render(){
+  updateProgress(); startTimer();
+  const content=document.getElementById("content");
+  content.classList.remove("show"); setTimeout(()=>{content.classList.add("show");},50);
+  content.innerHTML="";
   
-  div.innerHTML=""; 
-  interviewKeywords=[];
+  if(step===0){
+    content.innerHTML=`<h2>Candidate Information</h2>
+    <input id="name" placeholder="Full Name">
+    <input id="roll" placeholder="Roll Number">
+    <input id="dept" placeholder="Department">`;
+  } else if(step<=reading.length){
+    let q=reading[step-1];
+    content.innerHTML=`<div class="avatar">🤖</div><div class="question">${q.question}</div>
+    <button class="mic" onclick="voiceReading()">🎤 Speak Answer</button>
+    <canvas id="wave" class="wave"></canvas>
+    <div id="voiceText"></div>
+    <div class="feedback" id="feedback"></div>`;
+    visualizeWave();
+  } else if(step<=reading.length+verbal.length){
+    let index=step-reading.length-1,q=verbal[index];
+    content.innerHTML=`<div class="avatar">🤖</div><div class="question">${q.question}</div>
+    <div class="options">
+    <label><input type="radio" name="v" value="${q.option1}"> ${q.option1}</label>
+    <label><input type="radio" name="v" value="${q.option2}"> ${q.option2}</label>
+    <label><input type="radio" name="v" value="${q.option3}"> ${q.option3}</label>
+    <label><input type="radio" name="v" value="${q.option4}"> ${q.option4}</label>
+    </div>
+    <div class="feedback" id="feedback"></div>`;
+  } else if(step<=reading.length+verbal.length+interview.length){
+    let index=step-reading.length-verbal.length-1,q=interview[index];
+    content.innerHTML=`<div class="avatar">🤖</div><div class="question">${q.question}</div>
+    <button class="mic" onclick="voiceInterview()">🎤 Speak Answer</button>
+    <canvas id="wave" class="wave"></canvas>
+    <div id="voiceText"></div>
+    <div class="feedback" id="feedback"></div>`;
+    visualizeWave();
+  } else {
+    content.innerHTML=`<h2>Assessment Result</h2>
+    <div class="result-dashboard"><canvas id="pie"></canvas><canvas id="radar"></canvas></div>
+    <button class="submit" onclick="downloadPDF()">Download Report</button>`;
+    renderCharts();
+  }
+}
 
-  for(let i=0;i<data.length;i++){
-    const q=data[i]; 
-    interviewKeywords.push(q.keywords||[]);
-    div.innerHTML+=`<div style="margin-bottom:15px;">${i+1}. ${q.question}<br>
-      <button class="mic-btn" onclick="captureInterviewAnswer(${i})">🎤 Answer via Voice</button>
-      <span id="interviewAns${i}" style="margin-left:10px;"></span></div>`;
+// Navigation
+function next(){ if(step===0) saveCandidateInfo(); simulateScore(); step++; render(); }
+function prev(){if(step>0){step--;render();}}
 
-    // ✅ Only play audio if Section 4 is still active
-    if(document.getElementById("section4").classList.contains("active")){
-      await new Promise(r=>setTimeout(r,500)); 
-      playInterviewAudio(q.question);
+// Voice capture
+function voiceReading(){const recognition=new(window.SpeechRecognition||window.webkitSpeechRecognition)();recognition.start();recognition.onresult=e=>{let text=e.results[0][0].transcript;document.getElementById("voiceText").innerText=text;answers.reading[step-1]=text;}}
+function voiceInterview(){const recognition=new(window.SpeechRecognition||window.webkitSpeechRecognition)();recognition.start();recognition.onresult=e=>{let text=e.results[0][0].transcript;document.getElementById("voiceText").innerText=text;let index=step-reading.length-verbal.length-1;answers.interview[index]=text;}}
+
+// Audio wave
+function visualizeWave(){navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{const canvas=document.getElementById("wave"),ctx=canvas.getContext("2d"),audioCtx=new AudioContext(),analyser=audioCtx.createAnalyser();const source=audioCtx.createMediaStreamSource(stream);source.connect(analyser);analyser.fftSize=256;const bufferLength=analyser.frequencyBinCount,dataArray=new Uint8Array(bufferLength);function draw(){requestAnimationFrame(draw);analyser.getByteFrequencyData(dataArray);ctx.clearRect(0,0,canvas.width,canvas.height);let barWidth=canvas.width/bufferLength;for(let i=0;i<bufferLength;i++){let barHeight=dataArray[i]/2;ctx.fillStyle=`rgb(${barHeight+100},50,255)`;ctx.fillRect(i*barWidth,canvas.height-barHeight,barWidth,barHeight);}}draw();})}
+
+// Simulated scoring
+function simulateScore(){if(step===0) return;let score=Math.floor(Math.random()*10)+1;let feedbacks=["Excellent","Good","Average","Needs Improvement","Outstanding"];let feedback=feedbacks[Math.floor(Math.random()*feedbacks.length)];answers.scores[step-1]=score;answers.feedback[step-1]=feedback;let fbEl=document.getElementById("feedback");if(fbEl) fbEl.innerText=`Score: ${score}/10 | Feedback: ${feedback}`;}
+
+// Charts
+function renderCharts(){
+  let r=answers.reading.length,v=answers.verbal.length,i=answers.interview.length;
+  new Chart(document.getElementById("pie"),{type:"pie",data:{labels:["Reading","Verbal","Interview"],datasets:[{data:[r,v,i],backgroundColor:["#00f5ff","#7b2ff7","#00ffcc"]}]}});
+  let radarScores=[0,0,0,0,0];for(let s of answers.scores) radarScores[Math.floor(Math.random()*5)]+=s;
+  new Chart(document.getElementById("radar"),{type:"radar",data:{labels:["Fluency","Vocabulary","Confidence","Clarity","Logic"],datasets:[{data:radarScores,backgroundColor:"rgba(0,255,255,0.3)",borderColor:"#00f5ff"}]}});
+}
+
+// PDF
+function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:"landscape",unit:"pt",format:"a4"});
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y=50;
+
+    // Title
+    doc.setFontSize(22); doc.setTextColor(0,102,204);
+    doc.text("AI Communication Assessment Report", pageWidth/2, y,{align:"center"});
+
+    y+=40;
+
+    // Candidate Info
+    const name=answers.candidate?.name||"N/A";
+    const roll=answers.candidate?.roll||"N/A";
+    const dept=answers.candidate?.dept||"N/A";
+    doc.setFontSize(14); doc.setTextColor(50,50,50);
+    doc.text(`Name: ${name}`,40,y);
+    doc.text(`Roll Number: ${roll}`,250,y);
+    doc.text(`Department: ${dept}`,460,y);
+
+    y+=30;
+
+    // Table header
+    doc.setFontSize(14); doc.setTextColor(0,0,0); doc.setFillColor(200,200,255);
+    doc.rect(40,y,pageWidth-80,25,"F");
+    doc.setTextColor(0,0,50);
+    doc.text("Q#",60,y+17); doc.text("Answer Type",100,y+17); doc.text("Score",220,y+17); doc.text("Feedback",300,y+17);
+
+    y+=25;
+
+    // Table rows
+    doc.setFontSize(12);
+    const types=["Reading","Verbal","Interview"];
+    answers.scores.forEach((s,i)=>{
+        const typeIndex = i < reading.length ? 0 : i < reading.length + verbal.length ? 1 : 2;
+        const answerType = types[typeIndex];
+        const feedback = answers.feedback[i] || "";
+        doc.text(`${i+1}`,60,y+15); doc.text(answerType,100,y+15); doc.text(`${s}/10`,220,y+15); doc.text(feedback,300,y+15);
+        y+=20;
+        if(y>doc.internal.pageSize.getHeight()-50){doc.addPage();y=50;}
+    });
+
+    // Pie chart medium
+    const pieCanvas=document.getElementById("pie");
+    if(pieCanvas){
+        const pieImg=pieCanvas.toDataURL("image/png",1.0);
+        doc.addPage(); doc.setFontSize(16); doc.setTextColor(0,0,102);
+        doc.text("Category Summary",pageWidth/2,40,{align:"center"});
+        const pieWidth=300,pieHeight=300;
+        const pieX=(pageWidth-pieWidth)/2,pieY=60;
+        doc.addImage(pieImg,'PNG',pieX,pieY,pieWidth,pieHeight);
     }
-  }
+
+    doc.save("assessment_report.pdf");
 }
 
-// ✅ SUBMIT & SHOW CHARTS
-function submitAssessment(){
-  let scoreR=expectedReadingAnswers.length; 
-  const verbalInputs=document.querySelectorAll("#verbalQuestions div");
-  verbalInputs.forEach((div,i)=>{ const sel=document.querySelector(`input[name="v${i}"]:checked`); if(sel) answers.verbal[i]=sel.value; });
-  let scoreV = answers.verbal.filter(v=>v).length;
-  let scoreI = interviewKeywords.length;
-
-  window.latestScores={scoreR,scoreV,scoreI};
-
-  const pieCtx=document.getElementById("pieChart").getContext("2d"); if(pieChartInstance) pieChartInstance.destroy();
-  pieChartInstance=new Chart(pieCtx,{type:'pie',data:{labels:['Reading','Verbal','Interview'],datasets:[{data:[scoreR,scoreV,scoreI],backgroundColor:['#00f5ff','#7b2ff7','#00ffcc']}]},options:{plugins:{legend:{display:true,position:'bottom'}}}});
-
-  const barCtx=document.getElementById("barChart").getContext("2d"); if(barChartInstance) barChartInstance.destroy();
-  barChartInstance=new Chart(barCtx,{type:'bar',data:{labels:['Reading','Verbal','Interview'],datasets:[{label:'Score',data:[scoreR,scoreV,scoreI],backgroundColor:['#00f5ff','#7b2ff7','#00ffcc']}]},options:{scales:{y:{beginAtZero:true}},plugins:{legend:{display:false}}}});
-
-  fadeOut(document.querySelector(".section.active")); 
-  fadeIn(document.getElementById("section5"));
-}
-
-// Download PDF Certificate with Charts
-function downloadPDF(){
-  const { jsPDF }=window.jspdf;
-  const doc=new jsPDF('landscape','pt','a4');
-  const pageWidth=doc.internal.pageSize.getWidth();
-  const pageHeight=doc.internal.pageSize.getHeight();
-
-  doc.setFontSize(30);
-  doc.setTextColor(40,40,150);
-  doc.setFont("helvetica","bold");
-  doc.text("Result of Communication Assessment",pageWidth/2,80,{align:"center"});
-
-  doc.setFontSize(16);
-  doc.setTextColor(0,0,0);
-  doc.setFont("helvetica","normal");
-  doc.text("This result is presented to",pageWidth/2,120,{align:"center"});
-
-  const name=document.getElementById("name").value || "Participant Name";
-  doc.setFontSize(24);
-  doc.setFont("helvetica","bold");
-  doc.setTextColor(0,80,160);
-  doc.text(name,pageWidth/2,160,{align:"center"});
-
-  const roll=document.getElementById("rollno").value || "Roll No.";
-  const dept=document.getElementById("department").value || "Department";
-  doc.setFontSize(16);
-  doc.setFont("helvetica","normal");
-  doc.setTextColor(0,0,0);
-  doc.text(`Roll No: ${roll} | Department: ${dept}`,pageWidth/2,190,{align:"center"});
-
-  if(window.latestScores){
-    doc.setFontSize(16);
-    doc.text(`Reading Score: ${window.latestScores.scoreR}`,pageWidth/4,240);
-    doc.text(`Verbal Score: ${window.latestScores.scoreV}`,pageWidth/2,240);
-    doc.text(`Interview Score: ${window.latestScores.scoreI}`,(pageWidth/4)*3,240);
-  }
-
-  const pieCanvas=document.getElementById("pieChart");
-  const barCanvas=document.getElementById("barChart");
-  const pieImg=pieCanvas.toDataURL("image/png");
-  const barImg=barCanvas.toDataURL("image/png");
-
-  doc.addImage(pieImg,'PNG',pageWidth/4-75,260,150,150);
-  doc.addImage(barImg,'PNG',(pageWidth/4)*3-75,260,150,150);
-
-  doc.setFontSize(16);
-  doc.text("____________________",pageWidth-180,pageHeight-80);
-  doc.text("Authorized Signature",pageWidth-180,pageHeight-60);
-
-  doc.save("Communication_Result.pdf");
-}
+loadQuestions();
 </script>
 </body>
 </html>
