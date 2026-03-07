@@ -12,10 +12,29 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{height:100vh;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:white;overflow:hidden;}
+body{
+min-height:100vh;
+background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+color:white;
+overflow:auto;
+}
 #particles-js{position:fixed;width:100%;height:100%;z-index:-1;}
 .container{height:100%;display:flex;align-items:center;justify-content:center;padding:20px;}
-.card{width:900px;max-width:95%;height:85vh;background:rgba(255,255,255,0.05);backdrop-filter:blur(30px);border-radius:30px;border:1px solid rgba(255,255,255,0.1);box-shadow:0 0 60px rgba(0,255,255,0.2),0 0 100px rgba(0,0,0,0.6);padding:35px;display:flex;flex-direction:column;justify-content:space-between;transition:all 0.5s ease;}
+.card{
+width:900px;
+max-width:95%;
+min-height:85vh;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(30px);
+border-radius:30px;
+border:1px solid rgba(255,255,255,0.1);
+box-shadow:0 0 60px rgba(0,255,255,0.2),0 0 100px rgba(0,0,0,0.6);
+padding:35px;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+overflow:auto;
+}
 .title{text-align:center;font-size:32px;font-weight:800;background:linear-gradient(45deg,#00f5ff,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
 .timer{font-size:14px;opacity:.85;}
@@ -35,14 +54,137 @@ button:hover{transform:scale(1.05);}
 .prev{background:linear-gradient(45deg,#ffaa00,#ff6600);color:black;box-shadow:0 0 15px #ffaa00;}
 .submit{background:linear-gradient(45deg,#ff3d3d,#ff0066);color:white;box-shadow:0 0 15px #ff3d3d;}
 .mic{background:linear-gradient(45deg,#00f5ff,#a855f7);color:black;font-size:16px;box-shadow:0 0 15px #00f5ff;}
-.nav{display:flex;justify-content:center;margin-top:15px;}
-.wave{width:340px;height:80px;margin-top:15px;background:rgba(255,255,255,0.1);border-radius:15px;box-shadow:0 0 10px #00f5ff inset;}
+.nav{
+display:flex;
+justify-content:space-between;
+margin-top:20px;
+flex-wrap:wrap;
+gap:10px;
+}
+.wave{
+width:100%;
+max-width:500px;
+height:150px;
+margin-top:20px;
+background:rgba(255,255,255,0.08);
+border-radius:20px;
+box-shadow:0 0 20px #00f5ff inset;
+}
 .result-dashboard{display:flex;gap:30px;justify-content:center;margin-top:25px;flex-wrap:wrap;}
 canvas{width:260px !important;height:260px !important;background:rgba(255,255,255,0.08);border-radius:15px;padding:12px;}
 .feedback{margin-top:10px;font-size:14px;color:#00ffcc;font-weight:600;}
 .avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(45deg,#00f5ff,#a855f7);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:30px;animation:float 2s infinite;}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
 @media(max-width:600px){.card{padding:20px;height:auto;}}
+@media(max-width:768px){
+  @media(max-width:768px){
+    @media(max-width:768px){
+
+.question{
+font-size:18px;
+}
+
+.card{
+padding:20px;
+}
+
+.wave{
+height:110px;
+}
+
+button{
+width:100%;
+}
+
+.nav{
+flex-direction:column;
+}
+
+}
+
+.question{
+font-size:18px;
+}
+
+.card{
+padding:20px;
+}
+
+.wave{
+height:110px;
+}
+
+button{
+width:100%;
+}
+
+.nav{
+flex-direction:column;
+}
+
+}
+
+.card{
+width:900px;
+max-width:95%;
+min-height:85vh;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(30px);
+border-radius:30px;
+border:1px solid rgba(255,255,255,0.1);
+box-shadow:0 0 60px rgba(0,255,255,0.2),0 0 100px rgba(0,0,0,0.6);
+padding:35px;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+overflow:auto;
+}
+
+.question{
+font-size:18px;
+}
+
+canvas{
+width:200px !important;
+height:200px !important;
+}
+
+.wave{
+width:100%;
+max-width:500px;
+height:120px;
+margin-top:20px;
+background:rgba(255,255,255,0.08);
+border-radius:15px;
+box-shadow:0 0 15px #00f5ff inset;
+}
+
+button{
+width:100%;
+margin-top:10px;
+}
+
+.nav{
+display:flex;
+justify-content:space-between;
+margin-top:20px;
+flex-wrap:wrap;
+gap:10px;
+}
+
+}
+.home{
+background:linear-gradient(45deg,#ff5f6d,#ffc371);
+color:black;
+box-shadow:0 0 15px #ff5f6d;
+}
+.footer-text{
+margin-top:25px;
+text-align:center;
+font-size:12px;
+opacity:0.75;
+color:#cccccc;
+}
 </style>
 </head>
 
@@ -63,6 +205,11 @@ canvas{width:260px !important;height:260px !important;background:rgba(255,255,25
 <div class="nav">
 <button class="prev" onclick="prev()">Previous</button>
 <button class="next" onclick="next()">Next</button>
+<button class="home" onclick="returnHome()">Return Home</button>
+</div>
+<div class="footer-text">
+VoxMentor AI - Advanced Communication Practice Platform<br>
+DEVELOPED BY - T. TamilSelvan, B.Sc Computer Science [SF], KASC, Batch : 2023 - 2026
 </div>
 </div>
 </div>
@@ -75,6 +222,9 @@ const supabaseClient = supabase.createClient(
 particlesJS("particles-js",{particles:{number:{value:100},size:{value:3},move:{speed:2},line_linked:{enable:true}}})
 
 let step=0,totalSteps=1,timeLeft=30,timerInterval;
+
+let micPermissionGranted=false;
+let audioStream=null;
 let reading=[],verbal=[],interview=[];
 let answers={reading:[],verbal:[],interview:[],scores:[],feedback:[],candidate:{}};
 
@@ -89,7 +239,23 @@ async function loadQuestions(){
 }
 
 // Timer
-function startTimer(){clearInterval(timerInterval);timeLeft=30;timerInterval=setInterval(()=>{timeLeft--;document.getElementById("timer").innerText="00:"+String(timeLeft).padStart(2,'0');if(timeLeft<=0) next();},1000);}
+function startTimer(){
+  clearInterval(timerInterval);
+  timeLeft = 30;
+
+  timerInterval = setInterval(()=>{
+    timeLeft--;
+
+    document.getElementById("timer").innerText =
+      "00:" + String(timeLeft).padStart(2,'0');
+
+    if(timeLeft<=0){
+      clearInterval(timerInterval);
+      next();
+    }
+
+  },1000);
+}
 function updateProgress(){document.getElementById("progress").style.width=((step/totalSteps)*100)+"%";}
 
 // Save candidate info
@@ -103,7 +269,7 @@ function saveCandidateInfo(){
 
 // Render
 function render(){
-  updateProgress(); startTimer();
+  updateProgress(); 
   const content=document.getElementById("content");
   content.classList.remove("show"); setTimeout(()=>{content.classList.add("show");},50);
   content.innerHTML="";
@@ -116,9 +282,13 @@ function render(){
   } else if(step<=reading.length){
     let q=reading[step-1];
     content.innerHTML=`<div class="avatar">🤖</div><div class="question">${q.question}</div>
-    <button class="mic" onclick="voiceReading()">🎤 Speak Answer</button>
-    <canvas id="wave" class="wave"></canvas>
-    <div id="voiceText"></div>
+    <button class="mic" onclick="voiceReading()">🎤 Start Speaking</button>
+
+<div style="width:100%;display:flex;justify-content:center;">
+<canvas id="wave" class="wave"></canvas>
+</div>
+
+<div id="voiceText" style="margin-top:10px"></div>
     <div class="feedback" id="feedback"></div>`;
     visualizeWave();
   } else if(step<=reading.length+verbal.length){
@@ -134,9 +304,13 @@ function render(){
   } else if(step<=reading.length+verbal.length+interview.length){
     let index=step-reading.length-verbal.length-1,q=interview[index];
     content.innerHTML=`<div class="avatar">🤖</div><div class="question">${q.question}</div>
-    <button class="mic" onclick="voiceInterview()">🎤 Speak Answer</button>
-    <canvas id="wave" class="wave"></canvas>
-    <div id="voiceText"></div>
+    <button class="mic" onclick="voiceInterview()">🎤 Start Speaking</button>
+
+<div style="display:flex;justify-content:center;width:100%">
+<canvas id="wave" class="wave"></canvas>
+</div>
+
+<div id="voiceText" style="margin-top:10px"></div>
     <div class="feedback" id="feedback"></div>`;
     visualizeWave();
   } else {
@@ -148,15 +322,123 @@ function render(){
 }
 
 // Navigation
-function next(){ if(step===0) saveCandidateInfo(); simulateScore(); step++; render(); }
+function next(){
+
+  clearInterval(timerInterval);
+
+  if(step===0) saveCandidateInfo();
+
+  simulateScore();
+
+  step++;
+
+  render();
+
+}
 function prev(){if(step>0){step--;render();}}
 
 // Voice capture
-function voiceReading(){const recognition=new(window.SpeechRecognition||window.webkitSpeechRecognition)();recognition.start();recognition.onresult=e=>{let text=e.results[0][0].transcript;document.getElementById("voiceText").innerText=text;answers.reading[step-1]=text;}}
-function voiceInterview(){const recognition=new(window.SpeechRecognition||window.webkitSpeechRecognition)();recognition.start();recognition.onresult=e=>{let text=e.results[0][0].transcript;document.getElementById("voiceText").innerText=text;let index=step-reading.length-verbal.length-1;answers.interview[index]=text;}}
+async function voiceReading(){
 
+  await requestMicPermission();   // ask permission only first time
+
+  startTimer();   // timer starts after clicking start speaking
+  visualizeWave();
+
+  const recognition =
+  new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+  recognition.lang = "en-US";
+  recognition.interimResults = false;
+
+  recognition.start();
+
+  recognition.onresult = function(e){
+
+    let text = e.results[0][0].transcript;
+
+    document.getElementById("voiceText").innerText =
+    "You Said: " + text;
+
+    answers.reading[step-1] = text;
+
+  }
+
+}
+async function voiceInterview(){
+
+  await requestMicPermission();   // ask mic permission once
+
+  startTimer();
+  visualizeWave();
+
+  const recognition =
+  new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+  recognition.lang = "en-US";
+
+  recognition.start();
+
+  recognition.onresult = function(e){
+
+    let text = e.results[0][0].transcript;
+
+    document.getElementById("voiceText").innerText =
+    "You Said: " + text;
+
+    let index = step - reading.length - verbal.length - 1;
+
+    answers.interview[index] = text;
+
+  }
+
+}
 // Audio wave
-function visualizeWave(){navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{const canvas=document.getElementById("wave"),ctx=canvas.getContext("2d"),audioCtx=new AudioContext(),analyser=audioCtx.createAnalyser();const source=audioCtx.createMediaStreamSource(stream);source.connect(analyser);analyser.fftSize=256;const bufferLength=analyser.frequencyBinCount,dataArray=new Uint8Array(bufferLength);function draw(){requestAnimationFrame(draw);analyser.getByteFrequencyData(dataArray);ctx.clearRect(0,0,canvas.width,canvas.height);let barWidth=canvas.width/bufferLength;for(let i=0;i<bufferLength;i++){let barHeight=dataArray[i]/2;ctx.fillStyle=`rgb(${barHeight+100},50,255)`;ctx.fillRect(i*barWidth,canvas.height-barHeight,barWidth,barHeight);}}draw();})}
+function visualizeWave(){
+
+if(!audioStream) return;
+
+const canvas=document.getElementById("wave");
+const ctx=canvas.getContext("2d");
+
+const audioCtx=new AudioContext();
+const analyser=audioCtx.createAnalyser();
+
+const source=audioCtx.createMediaStreamSource(audioStream);
+
+source.connect(analyser);
+
+analyser.fftSize=256;
+
+const bufferLength=analyser.frequencyBinCount;
+
+const dataArray=new Uint8Array(bufferLength);
+
+function draw(){
+
+requestAnimationFrame(draw);
+
+analyser.getByteFrequencyData(dataArray);
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+let barWidth=canvas.width/bufferLength;
+
+for(let i=0;i<bufferLength;i++){
+
+let barHeight=dataArray[i]/2;
+
+ctx.fillStyle=`rgb(${barHeight+100},50,255)`;
+
+ctx.fillRect(i*barWidth,canvas.height-barHeight,barWidth,barHeight);
+
+}
+
+}
+
+draw();
+
+}
 
 // Simulated scoring
 function simulateScore(){if(step===0) return;let score=Math.floor(Math.random()*10)+1;let feedbacks=["Excellent","Good","Average","Needs Improvement","Outstanding"];let feedback=feedbacks[Math.floor(Math.random()*feedbacks.length)];answers.scores[step-1]=score;answers.feedback[step-1]=feedback;let fbEl=document.getElementById("feedback");if(fbEl) fbEl.innerText=`Score: ${score}/10 | Feedback: ${feedback}`;}
@@ -223,11 +505,54 @@ function downloadPDF() {
         const pieX=(pageWidth-pieWidth)/2,pieY=60;
         doc.addImage(pieImg,'PNG',pieX,pieY,pieWidth,pieHeight);
     }
+    // Developer Footer
+doc.setFontSize(10);
+
+doc.text(
+"VoxMentor AI - Advanced Communication Practice Platform",
+20,
+doc.internal.pageSize.getHeight()-20
+);
+
+doc.text(
+"DEVELOPED BY - T. TamilSelvan, B.Sc Computer Science [SF], KASC, Batch : 2023 - 2026",
+20,
+doc.internal.pageSize.getHeight()-12
+);
 
     doc.save("assessment_report.pdf");
 }
 
 loadQuestions();
+async function requestMicPermission(){
+
+  if(micPermissionGranted) return;
+
+  try{
+
+    audioStream = await navigator.mediaDevices.getUserMedia({audio:true});
+
+    micPermissionGranted = true;
+
+  }catch(err){
+
+    alert("Microphone permission is required to continue.");
+
+  }
+
+}
+function returnHome(){
+
+if(confirm("Are you sure you want to return to the home page?")){
+    
+    clearInterval(timerInterval);
+
+    window.location.href="index.html";
+
+}
+
+}
 </script>
 </body>
+
 </html>
