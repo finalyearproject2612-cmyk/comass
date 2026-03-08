@@ -328,7 +328,7 @@ function next(){
 
   if(step===0) saveCandidateInfo();
 
-  simulateScore();
+  evaluatePerformance();
 
   step++;
 
@@ -441,13 +441,106 @@ draw();
 }
 
 // Simulated scoring
-function simulateScore(){if(step===0) return;let score=Math.floor(Math.random()*10)+1;let feedbacks=["Excellent","Good","Average","Needs Improvement","Outstanding"];let feedback=feedbacks[Math.floor(Math.random()*feedbacks.length)];answers.scores[step-1]=score;answers.feedback[step-1]=feedback;let fbEl=document.getElementById("feedback");if(fbEl) fbEl.innerText=`Score: ${score}/10 | Feedback: ${feedback}`;}
+function evaluatePerformance(){
+
+if(step===0) return;
+
+let text="";
+let score=0;
+let feedback="";
+
+/* -------------------------
+READING COMMUNICATION
+------------------------- */
+
+if(step<=reading.length){
+
+text = answers.reading[step-1] || "";
+
+let words = text.trim().split(/\s+/).length;
+
+if(words>=45){
+score = 9;
+feedback = "Outstanding Communication";
+}
+else if(words>=35){
+score = 8;
+feedback = "Excellent Communication";
+}
+else if(words>=25){
+score = 7;
+feedback = "Good Communication";
+}
+else if(words>=15){
+score = 5;
+feedback = "Average Communication";
+}
+else{
+score = 3;
+feedback = "Needs Improvement";
+}
+
+}
+
+/* -------------------------
+INTERVIEW COMMUNICATION
+------------------------- */
+
+else if(step<=reading.length+verbal.length+interview.length){
+
+let index = step-reading.length-verbal.length-1;
+
+text = answers.interview[index] || "";
+
+let words = text.trim().split(/\s+/).length;
+
+if(words>=50){
+score = 10;
+feedback = "Outstanding Communication";
+}
+else if(words>=40){
+score = 9;
+feedback = "Excellent Communication";
+}
+else if(words>=30){
+score = 8;
+feedback = "Good Communication";
+}
+else if(words>=20){
+score = 6;
+feedback = "Average Communication";
+}
+else{
+score = 4;
+feedback = "Needs Improvement";
+}
+
+}
+
+answers.scores[step-1] = score;
+answers.feedback[step-1] = feedback;
+
+let fbEl=document.getElementById("feedback");
+
+if(fbEl){
+fbEl.innerText=`Score: ${score}/10 | Feedback: ${feedback}`;
+}
+
+}
 
 // Charts
 function renderCharts(){
   let r=answers.reading.length,v=answers.verbal.length,i=answers.interview.length;
   new Chart(document.getElementById("pie"),{type:"pie",data:{labels:["Reading","Verbal","Interview"],datasets:[{data:[r,v,i],backgroundColor:["#00f5ff","#7b2ff7","#00ffcc"]}]}});
-  let radarScores=[0,0,0,0,0];for(let s of answers.scores) radarScores[Math.floor(Math.random()*5)]+=s;
+  let total = answers.scores.reduce((a,b)=>a+b,0);
+
+let radarScores=[
+total*0.25, // Fluency
+total*0.20, // Vocabulary
+total*0.20, // Confidence
+total*0.20, // Clarity
+total*0.15  // Logic
+];
   new Chart(document.getElementById("radar"),{type:"radar",data:{labels:["Fluency","Vocabulary","Confidence","Clarity","Logic"],datasets:[{data:radarScores,backgroundColor:"rgba(0,255,255,0.3)",borderColor:"#00f5ff"}]}});
 }
 
